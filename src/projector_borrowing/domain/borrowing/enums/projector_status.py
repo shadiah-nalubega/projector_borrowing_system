@@ -1,3 +1,5 @@
+"""Whether a projector can be checked out."""
+
 from enum import Enum
 
 

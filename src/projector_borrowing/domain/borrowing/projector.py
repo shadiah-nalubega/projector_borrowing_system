@@ -1,15 +1,17 @@
-from projector_borrowing.domain.borrowing.enums.projector_category import (
+"""The Projector aggregate root (Aggregate B)."""
+
+from __future__ import annotations
+
+from projector_borrowing.domain.borrowing.enums import (
     ProjectorCategory,
+    ProjectorStatus,
 )
-from projector_borrowing.domain.borrowing.enums.projector_status import ProjectorStatus
-from projector_borrowing.domain.borrowing.exceptions.projector_not_available import (
-    ProjectorNotAvailable,
-)
-from projector_borrowing.domain.borrowing.value_objects.ids import AssetTag
+from projector_borrowing.domain.borrowing.exceptions import ProjectorNotAvailable
+from projector_borrowing.domain.borrowing.value_objects import AssetTag
 
 
 class Projector:
-    """Aggregate Root (Aggregate B).
+    """A physical projector that can be lent out.
 
     Invariant: a projector is with at most one borrower at a time, so it can
     only be checked out while AVAILABLE. This is the rule it checks before
@@ -21,14 +23,34 @@ class Projector:
         asset_tag: AssetTag,
         category: ProjectorCategory,
         status: ProjectorStatus = ProjectorStatus.AVAILABLE,
-    ):
-        self.asset_tag = asset_tag
-        self.category = category
-        self.status = status
+    ) -> None:
+        self._asset_tag = asset_tag
+        self._category = category
+        self._status = status
+
+    @property
+    def asset_tag(self) -> AssetTag:
+        """Return the identity of this aggregate."""
+
+        return self._asset_tag
+
+    @property
+    def category(self) -> ProjectorCategory:
+        """Return whether this is a STANDARD or PREMIUM projector."""
+
+        return self._category
+
+    @property
+    def status(self) -> ProjectorStatus:
+        """Return whether this projector is AVAILABLE or ON_LOAN."""
+
+        return self._status
 
     def checkout(self) -> None:
-        if self.status is not ProjectorStatus.AVAILABLE:
+        """Hand the projector out, refusing if it is already on loan."""
+
+        if self._status is not ProjectorStatus.AVAILABLE:
             raise ProjectorNotAvailable(
-                f"Projector {self.asset_tag} is {self.status.value}"
+                f"Projector {self._asset_tag} is {self._status.value}"
             )
-        self.status = ProjectorStatus.ON_LOAN
+        self._status = ProjectorStatus.ON_LOAN

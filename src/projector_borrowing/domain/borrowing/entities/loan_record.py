@@ -1,46 +1,93 @@
-from projector_borrowing.domain.borrowing.enums.loan_status import LoanStatus
-from projector_borrowing.domain.borrowing.exceptions.invalid_loan_state import (
-    InvalidLoanState,
-)
-from projector_borrowing.domain.borrowing.value_objects.borrowing_period import (
+"""The LoanRecord child entity in the Borrower aggregate. It enforces BR2."""
+
+from __future__ import annotations
+
+from projector_borrowing.domain.borrowing.enums import LoanStatus
+from projector_borrowing.domain.borrowing.exceptions import InvalidLoanState
+from projector_borrowing.domain.borrowing.value_objects import (
+    AssetTag,
     BorrowingPeriod,
+    LoanId,
 )
-from projector_borrowing.domain.borrowing.value_objects.ids import AssetTag, LoanId
 
 
 class LoanRecord:
-    """Entity enforcing BR2. Child of the Borrower aggregate.
+    """Represent one identifiable loan whose status changes over time.
 
-    Its identity is the LoanId: two loans for the same projector and the same
-    dates are still different loans. Its state may only move
-    PENDING -> ACTIVE or PENDING -> CANCELLED.
+    ``loan_id`` is the entity's identity: two loans for the same projector and
+    the same dates are still different loans. ``status`` is mutable state.
+
+    BR2: a loan may only move PENDING -> ACTIVE or PENDING -> CANCELLED.
     """
 
-    def __init__(self, loan_id: LoanId, asset_tag: AssetTag, period: BorrowingPeriod):
-        self.loan_id = loan_id
-        self.asset_tag = asset_tag
-        self.period = period
-        self.status = LoanStatus.PENDING
+    def __init__(
+        self,
+        loan_id: LoanId,
+        asset_tag: AssetTag,
+        period: BorrowingPeriod,
+    ) -> None:
+        self._loan_id = loan_id
+        self._asset_tag = asset_tag
+        self._period = period
+        self._status = LoanStatus.PENDING
 
-    def activate(self) -> None:
-        self._ensure_pending("confirm")
-        self.status = LoanStatus.ACTIVE
+    @property
+    def loan_id(self) -> LoanId:
+        """Return this entity's stable identity within its Borrower."""
 
-    def cancel(self) -> None:
-        self._ensure_pending("cancel")
-        self.status = LoanStatus.CANCELLED
+        return self._loan_id
+
+    @property
+    def asset_tag(self) -> AssetTag:
+        """Return the projector this loan is for."""
+
+        return self._asset_tag
+
+    @property
+    def period(self) -> BorrowingPeriod:
+        """Return the dates of this loan."""
+
+        return self._period
+
+    @property
+    def status(self) -> LoanStatus:
+        """Return the current state of this loan."""
+
+        return self._status
 
     def is_active_or_pending(self) -> bool:
-        return self.status in (LoanStatus.PENDING, LoanStatus.ACTIVE)
+        """Return whether this loan counts towards the borrower's limit (BR3)."""
+
+        return self._status in (LoanStatus.PENDING, LoanStatus.ACTIVE)
+
+    def _activate(self) -> None:
+        """Confirm the loan after the Borrower has approved the change.
+
+        The leading underscore marks this as aggregate-internal behaviour.
+        Calling code should use ``Borrower.confirm_loan`` instead.
+        """
+
+        self._ensure_pending("confirm")
+        self._status = LoanStatus.ACTIVE
+
+    def _cancel(self) -> None:
+        """Cancel the loan. Calling code should use ``Borrower.cancel_loan``."""
+
+        self._ensure_pending("cancel")
+        self._status = LoanStatus.CANCELLED
 
     def _ensure_pending(self, action: str) -> None:
-        if self.status is not LoanStatus.PENDING:
+        """Protect BR2: only a PENDING loan can change state."""
+
+        if self._status is not LoanStatus.PENDING:
             raise InvalidLoanState(
-                f"Cannot {action} loan {self.loan_id}: it is {self.status.value}"
+                f"Cannot {action} loan {self._loan_id}: it is {self._status.value}"
             )
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, LoanRecord) and other.loan_id == self.loan_id
+        """Entities are equal when their identities are equal."""
+
+        return isinstance(other, LoanRecord) and other.loan_id == self._loan_id
 
     def __hash__(self) -> int:
-        return hash(self.loan_id)
+        return hash(self._loan_id)

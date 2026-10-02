@@ -1,5 +1,8 @@
+"""Use-case failures that are not domain rule violations."""
+
+
 class ApplicationError(Exception):
-    """Base class for use-case failures that are not domain rule violations."""
+    """Base class for application-layer failures."""
 
 
 class BorrowerNotFound(ApplicationError):

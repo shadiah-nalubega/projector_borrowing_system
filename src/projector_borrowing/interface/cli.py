@@ -1,46 +1,35 @@
-"""Minimal command-line entry point.
+"""A minimal command-line entry point.
 
 Example:
     python -m projector_borrowing.interface.cli S001 PRJ-001 2026-10-05 2026-10-08
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from datetime import date
 
-from projector_borrowing.application.borrowing.dto.borrow_projector_request import (
-    BorrowProjectorRequest,
-)
+from projector_borrowing.application.borrowing.dto import BorrowProjectorRequest
 from projector_borrowing.application.borrowing.exceptions import ApplicationError
-from projector_borrowing.application.borrowing.handlers.mark_projector_on_loan_handler import (
-    MarkProjectorOnLoanHandler,
-)
-from projector_borrowing.application.borrowing.services.borrow_projector_service import (
-    BorrowProjectorService,
-)
-from projector_borrowing.application.events.event_dispatcher import EventDispatcher
-from projector_borrowing.domain.borrowing.borrower import Borrower
-from projector_borrowing.domain.borrowing.enums.borrower_type import BorrowerType
-from projector_borrowing.domain.borrowing.enums.projector_category import (
-    ProjectorCategory,
-)
-from projector_borrowing.domain.borrowing.exceptions.domain_error import DomainError
-from projector_borrowing.domain.borrowing.events.loan_requested import LoanRequested
-from projector_borrowing.domain.borrowing.projector import Projector
-from projector_borrowing.domain.borrowing.services.borrowing_eligibility_service import (
-    BorrowingEligibilityService,
-)
-from projector_borrowing.domain.borrowing.value_objects.ids import AssetTag, BorrowerId
-from projector_borrowing.infrastructure.repositories.in_memory_borrower_repository import (
+from projector_borrowing.application.borrowing.handlers import MarkProjectorOnLoanHandler
+from projector_borrowing.application.borrowing.services import BorrowProjectorService
+from projector_borrowing.application.events import EventDispatcher
+from projector_borrowing.domain.borrowing import Borrower, Projector
+from projector_borrowing.domain.borrowing.enums import BorrowerType, ProjectorCategory
+from projector_borrowing.domain.borrowing.events import LoanRequested
+from projector_borrowing.domain.borrowing.exceptions import DomainError
+from projector_borrowing.domain.borrowing.services import BorrowingEligibilityService
+from projector_borrowing.domain.borrowing.value_objects import AssetTag, BorrowerId
+from projector_borrowing.infrastructure.repositories import (
     InMemoryBorrowerRepository,
-)
-from projector_borrowing.infrastructure.repositories.in_memory_projector_repository import (
     InMemoryProjectorRepository,
 )
 
 
 def build_service() -> BorrowProjectorService:
-    """Composition root: creates the concrete objects and injects them."""
+    """Composition root: create the concrete objects and inject them."""
+
     borrowers = InMemoryBorrowerRepository()
     projectors = InMemoryProjectorRepository()
 
@@ -57,6 +46,8 @@ def build_service() -> BorrowProjectorService:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Parse the arguments, run the use case and print the outcome."""
+
     parser = argparse.ArgumentParser(description="Request a projector loan.")
     parser.add_argument("borrower_id", help="e.g. S001 (student) or T001 (staff)")
     parser.add_argument("asset_tag", help="e.g. PRJ-001 (standard) or PRJ-002 (premium)")

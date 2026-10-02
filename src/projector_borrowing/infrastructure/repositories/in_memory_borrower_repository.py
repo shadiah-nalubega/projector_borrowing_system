@@ -1,20 +1,25 @@
-import copy
-from typing import Optional
+"""An in-memory BorrowerRepository."""
 
-from projector_borrowing.application.borrowing.repositories.borrower_repository import (
-    BorrowerRepository,
-)
-from projector_borrowing.domain.borrowing.borrower import Borrower
-from projector_borrowing.domain.borrowing.value_objects.ids import BorrowerId
+from __future__ import annotations
+
+import copy
+
+from projector_borrowing.application.borrowing.repositories import BorrowerRepository
+from projector_borrowing.domain.borrowing import Borrower
+from projector_borrowing.domain.borrowing.value_objects import BorrowerId
 
 
 class InMemoryBorrowerRepository(BorrowerRepository):
-    """Keeps copies, like a real database: changes are lost unless saved."""
+    """Keep Borrower aggregates in a dictionary.
+
+    Copies are stored and returned, like a real database: changes to a
+    borrower are lost unless ``save`` is called.
+    """
 
     def __init__(self) -> None:
         self._borrowers: dict[BorrowerId, Borrower] = {}
 
-    def find_by_id(self, borrower_id: BorrowerId) -> Optional[Borrower]:
+    def find_by_id(self, borrower_id: BorrowerId) -> Borrower | None:
         borrower = self._borrowers.get(borrower_id)
         return copy.deepcopy(borrower) if borrower is not None else None
 

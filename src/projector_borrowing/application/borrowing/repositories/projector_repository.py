@@ -1,15 +1,20 @@
-from abc import ABC, abstractmethod
-from typing import Optional
+"""The ProjectorRepository contract."""
 
-from projector_borrowing.domain.borrowing.projector import Projector
-from projector_borrowing.domain.borrowing.value_objects.ids import AssetTag
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+
+from projector_borrowing.domain.borrowing import Projector
+from projector_borrowing.domain.borrowing.value_objects import AssetTag
 
 
 class ProjectorRepository(ABC):
-    """Stores the Projector aggregate."""
+    """Store and retrieve Projector aggregates."""
 
     @abstractmethod
-    def find_by_asset_tag(self, asset_tag: AssetTag) -> Optional[Projector]: ...
+    def find_by_asset_tag(self, asset_tag: AssetTag) -> Projector | None:
+        """Return the projector, or ``None`` when no projector has this tag."""
 
     @abstractmethod
-    def save(self, projector: Projector) -> None: ...
+    def save(self, projector: Projector) -> None:
+        """Store the projector."""

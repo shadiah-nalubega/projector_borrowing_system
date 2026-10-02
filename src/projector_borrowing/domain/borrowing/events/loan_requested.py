@@ -1,21 +1,25 @@
+"""The LoanRequested domain event, which starts the BR5 follow-up."""
+
+from __future__ import annotations
+
 from dataclasses import dataclass
 
-from projector_borrowing.domain.borrowing.value_objects.borrowing_period import (
-    BorrowingPeriod,
-)
-from projector_borrowing.domain.borrowing.value_objects.ids import (
+from projector_borrowing.domain.borrowing.value_objects import (
     AssetTag,
     BorrowerId,
+    BorrowingPeriod,
     LoanId,
 )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class LoanRequested:
-    """Domain Event for BR5.
+    """Record that a Borrower has requested a loan.
 
-    Raised by Borrower (Aggregate A) after a PENDING loan is recorded. It asks
-    Projector (Aggregate B) to be checked out.
+    A domain event describes something that already happened, so it is named
+    in the past tense and cannot be changed. Borrower (Aggregate A) raises it
+    after recording a PENDING loan. It asks Projector (Aggregate B) to be
+    checked out, without Borrower changing Projector directly.
     """
 
     loan_id: LoanId

@@ -40,6 +40,7 @@ classDiagram
         +confirm_loan(loan_id)
         +cancel_loan(loan_id)
         +active_or_pending_loan_count() int
+        +get_loan(loan_id) LoanRecord
     }
     class LoanRecord {
         <<Entity>>
@@ -47,8 +48,9 @@ classDiagram
         -asset_tag: AssetTag
         -period: BorrowingPeriod
         -status: LoanStatus
-        +activate()
-        +cancel()
+        -_activate()
+        -_cancel()
+        +is_active_or_pending() bool
     }
     class BorrowingPeriod {
         <<Value Object>>

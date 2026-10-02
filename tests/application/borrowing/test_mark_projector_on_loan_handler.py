@@ -1,21 +1,32 @@
-from projector_borrowing.application.borrowing.handlers.mark_projector_on_loan_handler import (
-    MarkProjectorOnLoanHandler,
+from projector_borrowing.application.borrowing.handlers import MarkProjectorOnLoanHandler
+from projector_borrowing.domain.borrowing.enums import LoanStatus, ProjectorStatus
+from projector_borrowing.domain.borrowing.value_objects import (
+    AssetTag,
+    BorrowerId,
+    BorrowingPeriod,
 )
-from projector_borrowing.domain.borrowing.enums.loan_status import LoanStatus
-from projector_borrowing.domain.borrowing.enums.projector_status import ProjectorStatus
-from projector_borrowing.domain.borrowing.value_objects.ids import AssetTag, BorrowerId
+from projector_borrowing.infrastructure.repositories import (
+    InMemoryBorrowerRepository,
+    InMemoryProjectorRepository,
+)
 
 
 def test_T5_BR5_loan_requested_event_checks_out_the_projector(
-    borrowers, projectors, period
-):
+    borrowers: InMemoryBorrowerRepository,
+    projectors: InMemoryProjectorRepository,
+    period: BorrowingPeriod,
+) -> None:
+    # Arrange
     borrower = borrowers.find_by_id(BorrowerId("S001"))
     event = borrower.request_loan(AssetTag("PRJ-001"), period)
     borrowers.save(borrower)
+    handler = MarkProjectorOnLoanHandler(borrowers, projectors)
 
-    MarkProjectorOnLoanHandler(borrowers, projectors)(event)
+    # Act
+    handler(event)
 
+    # Assert
     projector = projectors.find_by_asset_tag(AssetTag("PRJ-001"))
-    assert projector.status is ProjectorStatus.ON_LOAN
     loan = borrowers.find_by_id(BorrowerId("S001")).get_loan(event.loan_id)
+    assert projector.status is ProjectorStatus.ON_LOAN
     assert loan.status is LoanStatus.ACTIVE

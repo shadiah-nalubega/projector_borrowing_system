@@ -1,4 +1,4 @@
-from projector_borrowing.domain.borrowing.exceptions.domain_error import DomainError
+from .domain_error import DomainError
 
 
 class NotEligible(DomainError):

@@ -1,15 +1,17 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=75"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "projector-borrowing"
 version = "0.1.0"
-description = "Projector borrowing system: DDD, TDD and Clean Architecture coursework"
-requires-python = ">=3.10"
+description = "Projector borrowing system using DDD, TDD and Clean Architecture"
+requires-python = ">=3.12"
 
 [project.optional-dependencies]
-test = ["pytest>=7"]
+dev = [
+    "pytest>=7,<9",
+]
 
 [project.scripts]
 borrow-projector = "projector_borrowing.interface.cli:main"
@@ -18,6 +20,5 @@ borrow-projector = "projector_borrowing.interface.cli:main"
 where = ["src"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "--import-mode=importlib"
+testpaths = ["tests"]

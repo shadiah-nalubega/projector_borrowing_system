@@ -1,20 +1,25 @@
-import copy
-from typing import Optional
+"""An in-memory ProjectorRepository."""
 
-from projector_borrowing.application.borrowing.repositories.projector_repository import (
-    ProjectorRepository,
-)
-from projector_borrowing.domain.borrowing.projector import Projector
-from projector_borrowing.domain.borrowing.value_objects.ids import AssetTag
+from __future__ import annotations
+
+import copy
+
+from projector_borrowing.application.borrowing.repositories import ProjectorRepository
+from projector_borrowing.domain.borrowing import Projector
+from projector_borrowing.domain.borrowing.value_objects import AssetTag
 
 
 class InMemoryProjectorRepository(ProjectorRepository):
-    """Keeps copies, like a real database: changes are lost unless saved."""
+    """Keep Projector aggregates in a dictionary.
+
+    Copies are stored and returned, like a real database: changes to a
+    projector are lost unless ``save`` is called.
+    """
 
     def __init__(self) -> None:
         self._projectors: dict[AssetTag, Projector] = {}
 
-    def find_by_asset_tag(self, asset_tag: AssetTag) -> Optional[Projector]:
+    def find_by_asset_tag(self, asset_tag: AssetTag) -> Projector | None:
         projector = self._projectors.get(asset_tag)
         return copy.deepcopy(projector) if projector is not None else None
 

@@ -1,12 +1,20 @@
+"""Identity value objects.
+
+Wrapping identities in small types stops a LoanId from being passed where a
+BorrowerId is expected, and stops empty identities from entering the domain.
+"""
+
+from __future__ import annotations
+
 from dataclasses import dataclass
 
-from projector_borrowing.domain.borrowing.exceptions.invalid_identifier import (
-    InvalidIdentifier,
-)
+from projector_borrowing.domain.borrowing.exceptions import InvalidIdentifier
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class BorrowerId:
+    """Identify a Borrower aggregate."""
+
     value: str
 
     def __post_init__(self) -> None:
@@ -17,8 +25,10 @@ class BorrowerId:
         return self.value
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class LoanId:
+    """Identify a LoanRecord entity inside its Borrower."""
+
     value: str
 
     def __post_init__(self) -> None:
@@ -29,9 +39,9 @@ class LoanId:
         return self.value
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class AssetTag:
-    """The label stuck on a projector, e.g. "PRJ-001"."""
+    """Identify a Projector aggregate: the label stuck on it, e.g. "PRJ-001"."""
 
     value: str
 

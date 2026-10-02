@@ -1,35 +1,35 @@
-from projector_borrowing.application.borrowing.dto.borrow_projector_request import (
+"""The BorrowProjectorService: the main use case, request a projector loan."""
+
+from __future__ import annotations
+
+from projector_borrowing.application.borrowing.dto import (
     BorrowProjectorRequest,
-)
-from projector_borrowing.application.borrowing.dto.borrow_projector_response import (
     BorrowProjectorResponse,
 )
 from projector_borrowing.application.borrowing.exceptions import (
     BorrowerNotFound,
     ProjectorNotFound,
 )
-from projector_borrowing.application.borrowing.repositories.borrower_repository import (
+from projector_borrowing.application.borrowing.repositories import (
     BorrowerRepository,
-)
-from projector_borrowing.application.borrowing.repositories.projector_repository import (
     ProjectorRepository,
 )
-from projector_borrowing.application.events.event_dispatcher import EventDispatcher
-from projector_borrowing.domain.borrowing.services.borrowing_eligibility_service import (
-    BorrowingEligibilityService,
-)
-from projector_borrowing.domain.borrowing.value_objects.borrowing_period import (
+from projector_borrowing.application.events import EventDispatcher
+from projector_borrowing.domain.borrowing.services import BorrowingEligibilityService
+from projector_borrowing.domain.borrowing.value_objects import (
+    AssetTag,
+    BorrowerId,
     BorrowingPeriod,
 )
-from projector_borrowing.domain.borrowing.value_objects.ids import AssetTag, BorrowerId
 
 
 class BorrowProjectorService:
-    """Application Service for the main use case: request a projector loan.
+    """Coordinate a loan request from input DTO to output DTO.
 
-    It coordinates the work (look up, ask the domain, save, publish). The
-    business rules themselves live in the domain objects. Every dependency is
-    passed in from outside (dependency injection).
+    The service looks things up, asks the domain to decide, saves, and
+    publishes the event. The business rules themselves live in the domain
+    objects. Every dependency is passed in from outside (dependency
+    injection), so the service never creates a concrete repository.
     """
 
     def __init__(
@@ -38,14 +38,19 @@ class BorrowProjectorService:
         projector_repository: ProjectorRepository,
         eligibility_service: BorrowingEligibilityService,
         event_dispatcher: EventDispatcher,
-    ):
+    ) -> None:
         self._borrowers = borrower_repository
         self._projectors = projector_repository
         self._eligibility = eligibility_service
         self._events = event_dispatcher
 
-    def borrow_projector(self, request: BorrowProjectorRequest) -> BorrowProjectorResponse:
-        # BR6: both aggregates must exist before we continue.
+    def borrow_projector(
+        self,
+        request: BorrowProjectorRequest,
+    ) -> BorrowProjectorResponse:
+        """Run the use case and report the final loan and projector state."""
+
+        # BR6: both aggregates must exist before the request can continue.
         borrower_id = BorrowerId(request.borrower_id)
         borrower = self._borrowers.find_by_id(borrower_id)
         if borrower is None:
@@ -57,13 +62,13 @@ class BorrowProjectorService:
             raise ProjectorNotFound(f"No projector with asset tag {asset_tag}")
 
         period = BorrowingPeriod(request.start_date, request.end_date)  # BR1
-
         self._eligibility.ensure_eligible(borrower, projector)  # BR4
 
         event = borrower.request_loan(asset_tag, period)  # BR3, raises BR5 event
         self._borrowers.save(borrower)
-        self._events.publish(event)  # BR5: handler acts on the Projector
+        self._events.publish(event)  # BR5: the handler acts on the Projector
 
+        # Reload both aggregates to report what the handler did.
         borrower = self._borrowers.find_by_id(borrower_id)
         projector = self._projectors.find_by_asset_tag(asset_tag)
         return BorrowProjectorResponse(
