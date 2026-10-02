@@ -1,0 +1,20 @@
+$ python3 -m pytest -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/robotics1025/Documents/book/project/projector_borrowing_system
+configfile: pyproject.toml
+testpaths: tests
+plugins: ament-flake8-0.17.5, ament-xmllint-0.17.5, ament-copyright-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-pep257-0.17.5, ament-lint-0.17.5, colcon-core-0.21.3, cov-4.1.0, typeguard-4.1.5
+collecting ... collected 8 items
+
+tests/application/borrowing/test_borrow_projector_service.py::test_T6_BR6_unknown_borrower_is_rejected PASSED [ 12%]
+tests/application/borrowing/test_borrow_projector_service.py::test_T7_main_use_case_activates_loan_and_checks_out_projector PASSED [ 25%]
+tests/application/borrowing/test_borrow_projector_service.py::test_T8_projector_already_on_loan_rejects_checkout_and_loan_is_cancelled PASSED [ 37%]
+tests/application/borrowing/test_mark_projector_on_loan_handler.py::test_T5_BR5_loan_requested_event_checks_out_the_projector PASSED [ 50%]
+tests/domain/borrowing/test_borrower.py::test_T3_BR3_student_cannot_hold_a_second_loan PASSED [ 62%]
+tests/domain/borrowing/entities/test_loan_record.py::test_T2_BR2_cancelled_loan_cannot_be_confirmed PASSED [ 75%]
+tests/domain/borrowing/services/test_borrowing_eligibility_service.py::test_T4_BR4_student_is_not_eligible_for_premium_projector PASSED [ 87%]
+tests/domain/borrowing/value_objects/test_borrowing_period.py::test_T1_BR1_period_of_exactly_7_days_is_valid_but_8_days_is_rejected PASSED [100%]
+
+============================== 8 passed in 0.15s ===============================
