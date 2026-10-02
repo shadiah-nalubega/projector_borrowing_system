@@ -4,22 +4,19 @@ from datetime import date
 
 import pytest
 
-from projector_borrowing.application.borrowing.handlers import MarkProjectorOnLoanHandler
 from projector_borrowing.application.borrowing.services import BorrowProjectorService
 from projector_borrowing.domain.borrowing import Borrower, Projector
 from projector_borrowing.domain.borrowing.enums import BorrowerType, ProjectorCategory
-from projector_borrowing.domain.borrowing.events import LoanRequested
-from projector_borrowing.domain.borrowing.services import BorrowingEligibilityService
 from projector_borrowing.domain.borrowing.value_objects import (
     AssetTag,
     BorrowerId,
     BorrowingPeriod,
 )
-from projector_borrowing.infrastructure.events import InProcessEventDispatcher
 from projector_borrowing.infrastructure.repositories import (
     InMemoryBorrowerRepository,
     InMemoryProjectorRepository,
 )
+from projector_borrowing.interface.container import create_borrow_projector_service
 
 START = date(2026, 10, 5)
 END = date(2026, 10, 8)
@@ -49,10 +46,6 @@ def service(
     borrowers: InMemoryBorrowerRepository,
     projectors: InMemoryProjectorRepository,
 ) -> BorrowProjectorService:
-    """Wire the use case by injecting repositories from outside."""
+    """Wire the use case by injecting the test repositories from outside."""
 
-    dispatcher = InProcessEventDispatcher()
-    dispatcher.subscribe(LoanRequested, MarkProjectorOnLoanHandler(borrowers, projectors))
-    return BorrowProjectorService(
-        borrowers, projectors, BorrowingEligibilityService(), dispatcher
-    )
+    return create_borrow_projector_service(borrowers, projectors)

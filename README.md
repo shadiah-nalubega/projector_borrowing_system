@@ -8,7 +8,7 @@ projectors to students and staff, with in-memory persistence.
 - `domain`: aggregates, entities, value objects, domain services, domain events and business rules
 - `application`: use cases, DTOs, repository and event-publisher contracts, application-specific errors
 - `infrastructure`: in-memory repositories and the in-process event dispatcher
-- `interface`: the command-line entry point and composition root
+- `interface`: the command-line entry point (`cli.py`) and the composition root (`container.py`)
 
 Dependencies point inward: interface and infrastructure depend on application/domain,
 application depends on domain, and domain depends on nothing outside itself.

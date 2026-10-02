@@ -12,37 +12,28 @@ from datetime import date
 
 from projector_borrowing.application.borrowing.dto import BorrowProjectorRequest
 from projector_borrowing.application.borrowing.exceptions import ApplicationError
-from projector_borrowing.application.borrowing.handlers import MarkProjectorOnLoanHandler
-from projector_borrowing.application.borrowing.services import BorrowProjectorService
 from projector_borrowing.domain.borrowing import Borrower, Projector
 from projector_borrowing.domain.borrowing.enums import BorrowerType, ProjectorCategory
-from projector_borrowing.domain.borrowing.events import LoanRequested
 from projector_borrowing.domain.borrowing.exceptions import DomainError
-from projector_borrowing.domain.borrowing.services import BorrowingEligibilityService
 from projector_borrowing.domain.borrowing.value_objects import AssetTag, BorrowerId
-from projector_borrowing.infrastructure.events import InProcessEventDispatcher
 from projector_borrowing.infrastructure.repositories import (
     InMemoryBorrowerRepository,
     InMemoryProjectorRepository,
 )
+from projector_borrowing.interface.container import create_borrow_projector_service
 
 
-def build_service() -> BorrowProjectorService:
-    """Composition root: create the concrete objects and inject them."""
+def seed_demo_data() -> tuple[InMemoryBorrowerRepository, InMemoryProjectorRepository]:
+    """Create repositories holding two borrowers and two projectors."""
 
     borrowers = InMemoryBorrowerRepository()
-    projectors = InMemoryProjectorRepository()
-
     borrowers.save(Borrower(BorrowerId("S001"), BorrowerType.STUDENT))
     borrowers.save(Borrower(BorrowerId("T001"), BorrowerType.STAFF))
+
+    projectors = InMemoryProjectorRepository()
     projectors.save(Projector(AssetTag("PRJ-001"), ProjectorCategory.STANDARD))
     projectors.save(Projector(AssetTag("PRJ-002"), ProjectorCategory.PREMIUM))
-
-    dispatcher = InProcessEventDispatcher()
-    dispatcher.subscribe(LoanRequested, MarkProjectorOnLoanHandler(borrowers, projectors))
-    return BorrowProjectorService(
-        borrowers, projectors, BorrowingEligibilityService(), dispatcher
-    )
+    return borrowers, projectors
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -55,7 +46,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("end_date", type=date.fromisoformat, help="YYYY-MM-DD")
     args = parser.parse_args(argv)
 
-    service = build_service()
+    service = create_borrow_projector_service(*seed_demo_data())
     request = BorrowProjectorRequest(
         args.borrower_id, args.asset_tag, args.start_date, args.end_date
     )

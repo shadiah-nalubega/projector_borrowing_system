@@ -100,7 +100,7 @@ Arrows point from the importing layer to the imported layer. Nothing points outw
 
 ```mermaid
 flowchart TB
-    Interface["Interface<br/>cli.py (composition root)"]
+    Interface["Interface<br/>cli.py, container.py (composition root)"]
     Infrastructure["Infrastructure<br/>InMemoryBorrowerRepository, InMemoryProjectorRepository<br/>InProcessEventDispatcher"]
     Application["Application<br/>BorrowProjectorService, MarkProjectorOnLoanHandler<br/>DTOs, repository and EventPublisher interfaces"]
     Domain["Domain<br/>Borrower, Projector, LoanRecord, BorrowingPeriod<br/>BorrowingEligibilityService, LoanRequested, exceptions"]
