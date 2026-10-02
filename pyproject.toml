@@ -13,9 +13,6 @@ dev = [
     "pytest>=7,<9",
 ]
 
-[project.scripts]
-borrow-projector = "projector_borrowing.interface.cli:main"
-
 [tool.setuptools.packages.find]
 where = ["src"]
 

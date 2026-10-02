@@ -39,6 +39,3 @@ class BorrowingPeriod:
         """Number of days between the start and end dates."""
 
         return (self.end_date - self.start_date).days
-
-    def __str__(self) -> str:
-        return f"{self.start_date.isoformat()} to {self.end_date.isoformat()}"

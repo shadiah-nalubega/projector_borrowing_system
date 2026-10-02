@@ -59,12 +59,6 @@ class Borrower:
 
         return self._borrower_type
 
-    @property
-    def loans(self) -> tuple[LoanRecord, ...]:
-        """Return the loans as a read-only tuple."""
-
-        return tuple(self._loans.values())
-
     def request_loan(
         self,
         asset_tag: AssetTag,

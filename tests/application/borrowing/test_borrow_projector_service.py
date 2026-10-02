@@ -1,5 +1,3 @@
-from datetime import date
-
 import pytest
 
 from projector_borrowing.application.borrowing.dto import BorrowProjectorRequest
@@ -14,6 +12,7 @@ from projector_borrowing.domain.borrowing.enums import (
 from projector_borrowing.domain.borrowing.value_objects import (
     AssetTag,
     BorrowerId,
+    BorrowingPeriod,
     LoanId,
 )
 from projector_borrowing.infrastructure.repositories import (
@@ -21,16 +20,14 @@ from projector_borrowing.infrastructure.repositories import (
     InMemoryProjectorRepository,
 )
 
-START = date(2026, 10, 5)
-END = date(2026, 10, 8)
-
 
 def test_T6_BR6_unknown_borrower_is_rejected(
     service: BorrowProjectorService,
     projectors: InMemoryProjectorRepository,
+    period: BorrowingPeriod,
 ) -> None:
     # Arrange
-    request = BorrowProjectorRequest("NOBODY", "PRJ-001", START, END)
+    request = BorrowProjectorRequest("NOBODY", "PRJ-001", period.start_date, period.end_date)
 
     # Act
     with pytest.raises(BorrowerNotFound) as exception_info:
@@ -46,9 +43,10 @@ def test_T7_main_use_case_activates_loan_and_checks_out_projector(
     service: BorrowProjectorService,
     borrowers: InMemoryBorrowerRepository,
     projectors: InMemoryProjectorRepository,
+    period: BorrowingPeriod,
 ) -> None:
     # Arrange
-    request = BorrowProjectorRequest("S001", "PRJ-001", START, END)
+    request = BorrowProjectorRequest("S001", "PRJ-001", period.start_date, period.end_date)
 
     # Act
     response = service.borrow_projector(request)
@@ -67,12 +65,13 @@ def test_T8_projector_already_on_loan_rejects_checkout_and_loan_is_cancelled(
     service: BorrowProjectorService,
     borrowers: InMemoryBorrowerRepository,
     projectors: InMemoryProjectorRepository,
+    period: BorrowingPeriod,
 ) -> None:
     # Arrange
     projectors.save(
         Projector(AssetTag("PRJ-001"), ProjectorCategory.STANDARD, ProjectorStatus.ON_LOAN)
     )
-    request = BorrowProjectorRequest("S001", "PRJ-001", START, END)
+    request = BorrowProjectorRequest("S001", "PRJ-001", period.start_date, period.end_date)
 
     # Act
     response = service.borrow_projector(request)
