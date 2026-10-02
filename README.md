@@ -31,12 +31,16 @@ Seeded data: `S001` (student), `T001` (staff), `PRJ-001` (standard), `PRJ-002` (
 | BR5 | Follow-up | After a loan is requested, the projector must be checked out; it accepts only if AVAILABLE | `LoanRequested` -> `MarkProjectorOnLoanHandler` -> `Projector.checkout()` | `ProjectorNotAvailable`, loan cancelled |
 | BR6 | Lookup | Borrower and projector must exist before a loan request continues | `BorrowProjectorService` + repositories | `BorrowerNotFound` / `ProjectorNotFound` |
 
+## Diagrams
+
+See `docs/diagrams.md` (class diagram, layer dependencies, BR5 event flow).
+
 ## Evidence
 
 - `evidence/tdd_t1_1_fail.txt` - T1 written first; fails because `BorrowingPeriod` does not exist.
 - `evidence/tdd_t1_2_fail.txt` - minimal `BorrowingPeriod` without the rule; T1 fails on the assertion.
 - `evidence/tdd_t1_3_pass.txt` - BR1 implemented; T1 passes.
-- `evidence/test_run.txt` - full run of T1-T8.
+- `evidence/test_run.txt` - final full run of T1-T8.
 
 ## AI use
 

@@ -6,6 +6,7 @@ from projector_borrowing.domain.borrowing.events.loan_requested import LoanReque
 from projector_borrowing.domain.borrowing.exceptions.loan_limit_exceeded import (
     LoanLimitExceeded,
 )
+from projector_borrowing.domain.borrowing.exceptions.loan_not_found import LoanNotFound
 from projector_borrowing.domain.borrowing.value_objects.borrowing_period import (
     BorrowingPeriod,
 )
@@ -61,4 +62,4 @@ class Borrower:
         for loan in self._loans:
             if loan.loan_id == loan_id:
                 return loan
-        raise KeyError(f"Borrower {self.borrower_id} has no loan {loan_id}")
+        raise LoanNotFound(f"Borrower {self.borrower_id} has no loan {loan_id}")

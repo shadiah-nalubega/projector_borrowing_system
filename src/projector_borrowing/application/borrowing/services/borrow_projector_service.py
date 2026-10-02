@@ -15,7 +15,6 @@ from projector_borrowing.application.borrowing.repositories.projector_repository
     ProjectorRepository,
 )
 from projector_borrowing.application.events.event_dispatcher import EventDispatcher
-from projector_borrowing.domain.borrowing.exceptions.not_eligible import NotEligible
 from projector_borrowing.domain.borrowing.services.borrowing_eligibility_service import (
     BorrowingEligibilityService,
 )
@@ -59,11 +58,7 @@ class BorrowProjectorService:
 
         period = BorrowingPeriod(request.start_date, request.end_date)  # BR1
 
-        if not self._eligibility.check_eligibility(borrower, projector):  # BR4
-            raise NotEligible(
-                f"{borrower.borrower_type.value} borrowers cannot borrow "
-                f"{projector.category.value} projectors"
-            )
+        self._eligibility.ensure_eligible(borrower, projector)  # BR4
 
         event = borrower.request_loan(asset_tag, period)  # BR3, raises BR5 event
         self._borrowers.save(borrower)

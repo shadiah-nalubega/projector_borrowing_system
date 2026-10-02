@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 
+from projector_borrowing.domain.borrowing.exceptions.invalid_identifier import (
+    InvalidIdentifier,
+)
+
 
 @dataclass(frozen=True)
 class BorrowerId:
@@ -7,7 +11,7 @@ class BorrowerId:
 
     def __post_init__(self) -> None:
         if not self.value.strip():
-            raise ValueError("BorrowerId cannot be empty")
+            raise InvalidIdentifier("BorrowerId cannot be empty")
 
     def __str__(self) -> str:
         return self.value
@@ -19,7 +23,7 @@ class LoanId:
 
     def __post_init__(self) -> None:
         if not self.value.strip():
-            raise ValueError("LoanId cannot be empty")
+            raise InvalidIdentifier("LoanId cannot be empty")
 
     def __str__(self) -> str:
         return self.value
@@ -33,7 +37,7 @@ class AssetTag:
 
     def __post_init__(self) -> None:
         if not self.value.strip():
-            raise ValueError("AssetTag cannot be empty")
+            raise InvalidIdentifier("AssetTag cannot be empty")
 
     def __str__(self) -> str:
         return self.value

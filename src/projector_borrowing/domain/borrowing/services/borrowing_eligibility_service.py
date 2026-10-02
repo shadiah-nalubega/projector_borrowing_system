@@ -3,6 +3,7 @@ from projector_borrowing.domain.borrowing.enums.borrower_type import BorrowerTyp
 from projector_borrowing.domain.borrowing.enums.projector_category import (
     ProjectorCategory,
 )
+from projector_borrowing.domain.borrowing.exceptions.not_eligible import NotEligible
 from projector_borrowing.domain.borrowing.projector import Projector
 
 
@@ -20,3 +21,10 @@ class BorrowingEligibilityService:
         ):
             return False
         return True
+
+    def ensure_eligible(self, borrower: Borrower, projector: Projector) -> None:
+        if not self.check_eligibility(borrower, projector):
+            raise NotEligible(
+                f"{borrower.borrower_type.value} borrowers cannot borrow "
+                f"{projector.category.value} projectors"
+            )

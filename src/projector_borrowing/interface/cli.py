@@ -11,6 +11,7 @@ from datetime import date
 from projector_borrowing.application.borrowing.dto.borrow_projector_request import (
     BorrowProjectorRequest,
 )
+from projector_borrowing.application.borrowing.exceptions import ApplicationError
 from projector_borrowing.application.borrowing.handlers.mark_projector_on_loan_handler import (
     MarkProjectorOnLoanHandler,
 )
@@ -23,6 +24,7 @@ from projector_borrowing.domain.borrowing.enums.borrower_type import BorrowerTyp
 from projector_borrowing.domain.borrowing.enums.projector_category import (
     ProjectorCategory,
 )
+from projector_borrowing.domain.borrowing.exceptions.domain_error import DomainError
 from projector_borrowing.domain.borrowing.events.loan_requested import LoanRequested
 from projector_borrowing.domain.borrowing.projector import Projector
 from projector_borrowing.domain.borrowing.services.borrowing_eligibility_service import (
@@ -68,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     try:
         response = service.borrow_projector(request)
-    except Exception as error:
+    except (DomainError, ApplicationError) as error:
         print(f"Rejected: {type(error).__name__}: {error}")
         return 1
 
