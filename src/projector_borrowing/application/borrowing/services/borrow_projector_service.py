@@ -14,7 +14,7 @@ from projector_borrowing.application.borrowing.repositories import (
     BorrowerRepository,
     ProjectorRepository,
 )
-from projector_borrowing.application.events import EventDispatcher
+from projector_borrowing.application.events import EventPublisher
 from projector_borrowing.domain.borrowing.services import BorrowingEligibilityService
 from projector_borrowing.domain.borrowing.value_objects import (
     AssetTag,
@@ -37,12 +37,12 @@ class BorrowProjectorService:
         borrower_repository: BorrowerRepository,
         projector_repository: ProjectorRepository,
         eligibility_service: BorrowingEligibilityService,
-        event_dispatcher: EventDispatcher,
+        event_publisher: EventPublisher,
     ) -> None:
         self._borrowers = borrower_repository
         self._projectors = projector_repository
         self._eligibility = eligibility_service
-        self._events = event_dispatcher
+        self._events = event_publisher
 
     def borrow_projector(
         self,

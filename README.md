@@ -6,8 +6,8 @@ projectors to students and staff, with in-memory persistence.
 ## Layers
 
 - `domain`: aggregates, entities, value objects, domain services, domain events and business rules
-- `application`: use cases, DTOs, repository contracts and application-specific errors
-- `infrastructure`: in-memory repository implementations
+- `application`: use cases, DTOs, repository and event-publisher contracts, application-specific errors
+- `infrastructure`: in-memory repositories and the in-process event dispatcher
 - `interface`: the command-line entry point and composition root
 
 Dependencies point inward: interface and infrastructure depend on application/domain,

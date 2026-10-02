@@ -17,15 +17,16 @@ class BorrowingEligibilityService:
     stateless domain service.
     """
 
+    # Each pair is a borrower type that may not borrow a projector category.
+    # A new restriction is a new entry here, not a new if-statement.
+    RESTRICTED = frozenset({
+        (BorrowerType.STUDENT, ProjectorCategory.PREMIUM),
+    })
+
     def check_eligibility(self, borrower: Borrower, projector: Projector) -> bool:
         """Return whether the borrower is allowed this projector."""
 
-        if (
-            borrower.borrower_type is BorrowerType.STUDENT
-            and projector.category is ProjectorCategory.PREMIUM
-        ):
-            return False
-        return True
+        return (borrower.borrower_type, projector.category) not in self.RESTRICTED
 
     def ensure_eligible(self, borrower: Borrower, projector: Projector) -> None:
         """Raise NotEligible when BR4 is violated."""

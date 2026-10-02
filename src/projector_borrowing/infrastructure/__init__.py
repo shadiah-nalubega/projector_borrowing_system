@@ -1,1 +1,1 @@
-"""Technical implementations such as in-memory persistence."""
+"""Technical implementations: in-memory persistence and in-process events."""

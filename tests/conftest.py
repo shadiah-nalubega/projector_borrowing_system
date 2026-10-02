@@ -6,7 +6,6 @@ import pytest
 
 from projector_borrowing.application.borrowing.handlers import MarkProjectorOnLoanHandler
 from projector_borrowing.application.borrowing.services import BorrowProjectorService
-from projector_borrowing.application.events import EventDispatcher
 from projector_borrowing.domain.borrowing import Borrower, Projector
 from projector_borrowing.domain.borrowing.enums import BorrowerType, ProjectorCategory
 from projector_borrowing.domain.borrowing.events import LoanRequested
@@ -16,6 +15,7 @@ from projector_borrowing.domain.borrowing.value_objects import (
     BorrowerId,
     BorrowingPeriod,
 )
+from projector_borrowing.infrastructure.events import InProcessEventDispatcher
 from projector_borrowing.infrastructure.repositories import (
     InMemoryBorrowerRepository,
     InMemoryProjectorRepository,
@@ -51,7 +51,7 @@ def service(
 ) -> BorrowProjectorService:
     """Wire the use case by injecting repositories from outside."""
 
-    dispatcher = EventDispatcher()
+    dispatcher = InProcessEventDispatcher()
     dispatcher.subscribe(LoanRequested, MarkProjectorOnLoanHandler(borrowers, projectors))
     return BorrowProjectorService(
         borrowers, projectors, BorrowingEligibilityService(), dispatcher

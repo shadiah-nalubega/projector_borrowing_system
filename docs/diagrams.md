@@ -26,6 +26,10 @@ classDiagram
         +find_by_asset_tag(asset_tag: AssetTag) Projector
         +save(projector: Projector)
     }
+    class EventPublisher {
+        <<interface>>
+        +publish(event)
+    }
     class BorrowingEligibilityService {
         <<Domain Service>>
         +check_eligibility(borrower, projector) bool
@@ -76,6 +80,7 @@ classDiagram
     BorrowProjectorService ..> BorrowerRepository
     BorrowProjectorService ..> ProjectorRepository
     BorrowProjectorService ..> BorrowingEligibilityService
+    BorrowProjectorService ..> EventPublisher
     MarkProjectorOnLoanHandler ..> BorrowerRepository
     MarkProjectorOnLoanHandler ..> ProjectorRepository
     Borrower "1" *-- "0..*" LoanRecord
@@ -85,7 +90,7 @@ classDiagram
     MarkProjectorOnLoanHandler ..> Projector : checkout()
 ```
 
-Value objects for identity: `BorrowerId`, `LoanId`, `AssetTag`.
+Value objects for identity: `BorrowerId`, `LoanId`, `AssetTag` (all share the `Identifier` base).
 Enums: `BorrowerType` (STUDENT, STAFF), `LoanStatus` (PENDING, ACTIVE, CANCELLED),
 `ProjectorCategory` (STANDARD, PREMIUM), `ProjectorStatus` (AVAILABLE, ON_LOAN).
 
@@ -96,8 +101,8 @@ Arrows point from the importing layer to the imported layer. Nothing points outw
 ```mermaid
 flowchart TB
     Interface["Interface<br/>cli.py (composition root)"]
-    Infrastructure["Infrastructure<br/>InMemoryBorrowerRepository<br/>InMemoryProjectorRepository"]
-    Application["Application<br/>BorrowProjectorService, MarkProjectorOnLoanHandler<br/>DTOs, repository interfaces, EventDispatcher"]
+    Infrastructure["Infrastructure<br/>InMemoryBorrowerRepository, InMemoryProjectorRepository<br/>InProcessEventDispatcher"]
+    Application["Application<br/>BorrowProjectorService, MarkProjectorOnLoanHandler<br/>DTOs, repository and EventPublisher interfaces"]
     Domain["Domain<br/>Borrower, Projector, LoanRecord, BorrowingPeriod<br/>BorrowingEligibilityService, LoanRequested, exceptions"]
 
     Interface --> Application
@@ -115,7 +120,7 @@ sequenceDiagram
     participant CLI as Interface (CLI)
     participant S as BorrowProjectorService
     participant B as Borrower (Aggregate A)
-    participant D as EventDispatcher
+    participant D as InProcessEventDispatcher
     participant H as MarkProjectorOnLoanHandler
     participant P as Projector (Aggregate B)
 

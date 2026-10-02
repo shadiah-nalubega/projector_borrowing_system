@@ -1,4 +1,4 @@
-"""A simple in-process event dispatcher."""
+"""A simple in-process EventPublisher."""
 
 from __future__ import annotations
 
@@ -6,8 +6,10 @@ from collections import defaultdict
 from collections.abc import Callable
 from typing import Any
 
+from projector_borrowing.application.events import EventPublisher
 
-class EventDispatcher:
+
+class InProcessEventDispatcher(EventPublisher):
     """Deliver each published event to the handlers subscribed to its type.
 
     Handlers run immediately, in subscription order, in the same process. No

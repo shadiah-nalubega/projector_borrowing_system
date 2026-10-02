@@ -1,5 +1,5 @@
-"""In-process delivery of domain events to their handlers."""
+"""The event-publishing contract used by the use cases."""
 
-from .event_dispatcher import EventDispatcher
+from .event_publisher import EventPublisher
 
-__all__ = ["EventDispatcher"]
+__all__ = ["EventPublisher"]
